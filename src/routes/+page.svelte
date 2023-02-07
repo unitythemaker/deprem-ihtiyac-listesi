@@ -1,15 +1,106 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import PageTitle from '$components/PageTitle.svelte';
 	import ProductGrid from '$components/ProductGrid.svelte';
 	import TextInput from '$components/TextInput.svelte';
-	import type { IProduct } from '$lib/types';
+	import { cart } from '$lib/cart';
+	import { getLocation } from '$lib/location';
+	import type { IProduct, IUserData } from '$lib/types';
 
-	let userData = {
+	let userData: IUserData = {
 		name: '',
 		phone: '',
 		desc: '',
 		addr: '',
-		city: ''
+		city: '',
+		people: 1
 	};
+
+	let notHighlightErrors = true;
+	let submitStatus = false;
+	let loading = false;
+
+	$: nameValid = userData.name.length > 2;
+	$: phoneValid = userData.phone.length > 8;
+	$: descValid = userData.desc.length > 10;
+	$: addrValid = userData.addr.length > 8;
+	$: cityValid = userData.city.length > 1;
+	$: peopleValid = userData.people ? userData.people > 0 : false;
+	$: allValid = nameValid && phoneValid && descValid && addrValid && cityValid && peopleValid;
+
+	async function getHelp() {
+		notHighlightErrors = false;
+		if (!userData.name || !userData.phone || !userData.desc || !userData.addr || !userData.city) {
+			goto('#form');
+			return;
+		}
+		if (!allValid) {
+			alert('Lütfen formu eksiksiz doldurunuz.');
+			return;
+		}
+		try {
+			const { coords } = await getLocation();
+			console.log(coords);
+			loading = true;
+			const cartItems = $cart.map((item) => {
+				return {
+					name: products.find((p) => p.id === item.id)?.name,
+					count: item.qty,
+				};
+			});
+			const requestBody = JSON.stringify({
+				name: userData.name,
+				phone: userData.phone,
+				addr: userData.addr,
+				desc: userData.desc,
+				city: userData.city,
+				items: cartItems,
+				lat: coords.latitude,
+				lon: coords.longitude,
+				accuracy: coords.accuracy,
+			});
+			fetch('https://d4kaskicbogzb.cloudfront.net/api/clap', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: requestBody
+			})
+				.then(async (res) => {
+					if (res.status.toString().startsWith('2')) {
+						const msg = await res.text();
+						console.log(msg);
+						if (msg !== 'success') {
+							alert('Bilinmedik bir hata oluştu. Lütfen daha sonra tekrar deneyiniz (1): ' + msg);
+						} else {
+							submitStatus = true;
+							setTimeout(function () {
+								alert(
+									'Başvurunuz alınmıştır. En kısa sürede size dönüş yapılacaktır. Teşekkür ederiz.'
+								);
+							}, 1);
+							localStorage.setItem('lastSubmit', Date.now().toString());
+							localStorage.setItem('lastSubmitRequest', requestBody);
+              localStorage.setItem(`submitRequest-${Date.now()}`, requestBody);
+              localStorage.setItem(`submitResponse-${Date.now()}`, msg);
+						}
+					} else {
+						if (res.status === 429)
+							return alert('Daha sonra tekrar deneyebilirsiniz. (5)');
+						alert('Bilinmedik bir hata oluştu. Lütfen daha sonra tekrar deneyiniz. (2)');
+					}
+					loading = false;
+				})
+				.catch((err) => {
+					console.log(err);
+					alert('Bir hata oluştu. Lütfen daha sonra tekrar deneyiniz (3): ' + err);
+					loading = false;
+				});
+		} catch (e: any) {
+			console.log(e);
+			alert('Konumunuz alınamadı. Lütfen konuma izin verdiğinizden emin olunuz (4): ' + e.message);
+		}
+	}
 
 	// onMount(async () => {
 	//   const { coords } = await getCoords();
@@ -19,37 +110,36 @@
 		{
 			id: 'isitici',
 			name: 'Product 1',
-			price: 100,
 			qty: 1
 		},
 		{
 			id: 'isitici2',
 			name: 'Product 2',
-			price: 200,
 			qty: 1
 		},
 		{
 			id: 'isitici3',
 			name: 'Product 3',
-			price: 300,
 			qty: 1
 		},
 		{
 			id: 'isitici4',
 			name: 'Product 4',
-			price: 400,
 			qty: 1
-		},
+		}
 	];
 </script>
 
+<PageTitle
+	upperText="Yardım"
+	title="Yardım İste"
+	description="İhtiyacınız olan malzemeleri aşağıdan seçin, formu doldurun ve yardım isteyin."
+/>
 <ProductGrid {products} />
-<button class="fixed z-50 bottom-0 w-full bg-green-700 h-24 font-bold text-white text-3xl"
-	>Yardim Iste</button
->
 
-<div class="flex flex-col container items-center">
-	<TextInput label="Ad Soyad" bind:value={userData.name}>
+<!-- ====== Form Section Start -->
+<div id="form" class="flex flex-col container items-center">
+	<TextInput type="number" label="Kaç kişisiniz?" bind:value={userData.people} validity={notHighlightErrors || peopleValid}>
 		<span slot="icon">
 			<svg
 				class="fill-gray-500"
@@ -59,14 +149,37 @@
 				height="24"
 			>
 				<g opacity="0.8">
-					<path fill="none" d="M0 0h24v24H0z" /><path
+					<path fill="none" d="M0 0h24v24H0z" />
+					<path
 						d="M4 22a8 8 0 1 1 16 0h-2a6 6 0 1 0-12 0H4zm8-9c-3.315 0-6-2.685-6-6s2.685-6 6-6 6 2.685 6 6-2.685 6-6 6zm0-2c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"
 					/>
 				</g>
 			</svg>
 		</span>
 	</TextInput>
-	<TextInput label="Telefon No" placeholder="Telefon No" bind:value={userData.phone}>
+	<TextInput label="Ad Soyad" bind:value={userData.name} validity={notHighlightErrors || nameValid}>
+		<span slot="icon">
+			<svg
+				class="fill-gray-500"
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox="0 0 24 24"
+				width="24"
+				height="24"
+			>
+				<g opacity="0.8">
+					<path fill="none" d="M0 0h24v24H0z" />
+					<path
+						d="M4 22a8 8 0 1 1 16 0h-2a6 6 0 1 0-12 0H4zm8-9c-3.315 0-6-2.685-6-6s2.685-6 6-6 6 2.685 6 6-2.685 6-6 6zm0-2c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"
+					/>
+				</g>
+			</svg>
+		</span>
+	</TextInput>
+	<TextInput
+		label="Telefon Numarası"
+		bind:value={userData.phone}
+		validity={notHighlightErrors || phoneValid}
+	>
 		<span slot="icon">
 			<svg
 				class="fill-gray-500"
@@ -84,7 +197,12 @@
 			</svg>
 		</span>
 	</TextInput>
-	<TextInput label="Adres" bind:value={userData.addr}>
+	<TextInput
+		label="Adres"
+		placeholder="Adresinizi giriniz"
+		bind:value={userData.addr}
+		validity={notHighlightErrors || addrValid}
+	>
 		<span slot="icon">
 			<svg
 				class="fill-gray-500"
@@ -104,13 +222,15 @@
 	</TextInput>
 	<div class="w-full px-4 md:w-1/2 lg:w-1/3">
 		<div class="mb-12">
-			<label for="desc" class="mb-3 block text-base font-medium text-black"> Aciklama </label>
+			<label for="desc" class="mb-3 block text-base font-medium text-black"> Açıklama </label>
 			<div class="relative">
 				<textarea
-          id="desc"
+					id="desc"
 					rows="4"
-					placeholder="Aciklama giriniz"
-					class="w-full rounded-md border border-form-stroke p-3 pl-12 text-black placeholder-[#929DA7] outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-[#F5F7FD]"
+					placeholder="Açıklama giriniz..."
+					bind:value={userData.desc}
+					data-valid={notHighlightErrors || descValid}
+					class="w-full rounded-md border border-form-stroke data-[valid=false]:border-red-700 p-3 pl-12 text-black placeholder-[#929DA7] outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-[#F5F7FD]"
 				/>
 				<span class="absolute top-[18px] left-4">
 					<svg
@@ -139,7 +259,7 @@
 			</div>
 		</div>
 	</div>
-	<TextInput label="Adres" bind:value={userData.addr}>
+	<TextInput label="Şehir" bind:value={userData.city} validity={notHighlightErrors || cityValid}>
 		<span slot="icon">
 			<svg
 				class="fill-gray-500"
@@ -158,5 +278,18 @@
 		</span>
 	</TextInput>
 </div>
+<!-- ====== Form Section End -->
 
-<div class="h-24"></div>
+<div class="h-24" />
+
+<button
+	on:click={getHelp}
+	disabled={loading}
+	class="fixed z-50 bottom-0 w-full bg-green-700 h-24 font-bold text-white text-3xl disabled:bg-gray-500"
+>
+	{#if loading}
+		Gönderiliyor...
+	{:else}
+		Yardım İste
+	{/if}
+</button>

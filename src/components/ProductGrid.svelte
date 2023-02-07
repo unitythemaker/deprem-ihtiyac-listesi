@@ -5,7 +5,7 @@
 	export let products: IProduct[];
 </script>
 
-<section class="bg-white py-20 lg:py-[120px]">
+<section class="bg-white py-20 lg:py-[60px]">
 	<div class="container mx-auto">
 		<div class="-mx-4 flex flex-wrap">
 			{#each products as product}

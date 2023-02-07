@@ -19,7 +19,7 @@
 					{product.name}
 				</div>
 			</h3>
-			<p class="mb-4 text-base font-semibold text-black">{product.price} TL</p>
+			<!-- <p class="mb-4 text-base font-semibold text-black">{product.price} TL</p> -->
 			{#if cartItem && cartItem.qty > 0}
 				<div
 					class="mr-3 mb-4 inline-flex items-center rounded border border-[#e7e7e7] text-base font-medium text-black"

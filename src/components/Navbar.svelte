@@ -31,23 +31,15 @@
 					<nav
 						id="navbarCollapse"
 						class="{!navbarOpen &&
-							'hidden'} absolute right-4 top-full w-full max-w-[250px] justify-center rounded-lg bg-white py-5 px-6 shadow lg:static lg:flex lg:w-full lg:max-w-full lg:bg-transparent lg:py-0 lg:shadow-none"
+							'hidden'} absolute right-4 top-full w-full max-w-[250px] justify-end rounded-lg bg-white py-5 px-6 shadow lg:static lg:flex lg:w-full lg:max-w-full lg:bg-transparent lg:py-0 lg:shadow-none"
 					>
 						<ul class="block lg:flex">
-							<li>
-								<a
-									href="/"
-									class="text-dark hover:text-primary flex py-2 text-base font-medium lg:mx-6 lg:inline-flex lg:py-6"
-								>
-								Ana Sayfa
-								</a>
-							</li>
 							<li>
 								<a
 									href="/hakkimizda"
 									class="text-dark hover:text-primary flex py-2 text-base font-medium lg:mx-6 lg:inline-flex lg:py-6"
 								>
-								Hakkimizda
+								Hakkımızda
 								</a>
 							</li>
 							<li>
@@ -55,7 +47,7 @@
 									href="/iletisim"
 									class="text-dark hover:text-primary flex py-2 text-base font-medium lg:mx-6 lg:inline-flex lg:py-6"
 								>
-									Iletisim
+									İletişim
 								</a>
 							</li>
 						</ul>
