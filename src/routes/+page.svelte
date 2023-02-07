@@ -5,7 +5,10 @@
 	import TextInput from '$components/TextInput.svelte';
 	import { cart } from '$lib/cart';
 	import { getLocation } from '$lib/location';
-	import type { IProduct, IUserData } from '$lib/types';
+	import type { IUserData } from '$lib/types';
+	import { products } from '$lib/products';
+	import Dropdown from '$components/Dropdown.svelte';
+	import { cities } from '$lib/cities';
 
 	let userData: IUserData = {
 		name: '',
@@ -16,6 +19,7 @@
 		people: 1
 	};
 
+	let requestedGeolocation = false;
 	let notHighlightErrors = true;
 	let submitStatus = false;
 	let loading = false;
@@ -24,7 +28,7 @@
 	$: phoneValid = userData.phone.length > 8;
 	$: descValid = userData.desc.length > 10;
 	$: addrValid = userData.addr.length > 8;
-	$: cityValid = userData.city.length > 1;
+	$: cityValid = userData.city.toString().length === 2;
 	$: peopleValid = userData.people ? userData.people > 0 : false;
 	$: allValid = nameValid && phoneValid && descValid && addrValid && cityValid && peopleValid;
 
@@ -39,13 +43,13 @@
 			return;
 		}
 		try {
-			const { coords } = await getLocation();
-			console.log(coords);
+			let coords: any = { latitude: undefined, longitude: undefined, accuracy: undefined };
+			if (!requestedGeolocation) coords = await getLocation();
 			loading = true;
 			const cartItems = $cart.map((item) => {
 				return {
 					name: products.find((p) => p.id === item.id)?.name,
-					count: item.qty,
+					count: item.qty
 				};
 			});
 			const requestBody = JSON.stringify({
@@ -57,9 +61,9 @@
 				items: cartItems,
 				lat: coords.latitude,
 				lon: coords.longitude,
-				accuracy: coords.accuracy,
+				accuracy: coords.accuracy
 			});
-			fetch('https://d4kaskicbogzb.cloudfront.net/api/clap', {
+			fetch('https://d38m1yteyr1wyz.cloudfront.net/api/itemrequest', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -68,25 +72,18 @@
 			})
 				.then(async (res) => {
 					if (res.status.toString().startsWith('2')) {
-						const msg = await res.text();
-						console.log(msg);
-						if (msg !== 'success') {
-							alert('Bilinmedik bir hata oluştu. Lütfen daha sonra tekrar deneyiniz (1): ' + msg);
-						} else {
-							submitStatus = true;
-							setTimeout(function () {
-								alert(
-									'Başvurunuz alınmıştır. En kısa sürede size dönüş yapılacaktır. Teşekkür ederiz.'
-								);
-							}, 1);
-							localStorage.setItem('lastSubmit', Date.now().toString());
-							localStorage.setItem('lastSubmitRequest', requestBody);
-              localStorage.setItem(`submitRequest-${Date.now()}`, requestBody);
-              localStorage.setItem(`submitResponse-${Date.now()}`, msg);
-						}
+						submitStatus = true;
+						setTimeout(function () {
+							alert(
+								'Başvurunuz alınmıştır. En kısa sürede size dönüş yapılacaktır. Teşekkür ederiz. Yeni bir istek talebinde bulunmak için sayfayı yenileyiniz.'
+							);
+						}, 1);
+						localStorage.setItem('lastSubmit', Date.now().toString());
+						localStorage.setItem('lastSubmitRequest', requestBody);
+						localStorage.setItem(`submitRequest-${Date.now()}`, requestBody);
+						return;
 					} else {
-						if (res.status === 429)
-							return alert('Daha sonra tekrar deneyebilirsiniz. (5)');
+						if (res.status === 429) return alert('Daha sonra tekrar deneyebilirsiniz. (5)');
 						alert('Bilinmedik bir hata oluştu. Lütfen daha sonra tekrar deneyiniz. (2)');
 					}
 					loading = false;
@@ -98,37 +95,21 @@
 				});
 		} catch (e: any) {
 			console.log(e);
-			alert('Konumunuz alınamadı. Lütfen konuma izin verdiğinizden emin olunuz (4): ' + e.message);
+			alert('Konumunuz alınamadı. Lütfen konuma izin verdiğinizden emin olunuz. (4)');
 		}
+		requestedGeolocation = true;
 	}
 
 	// onMount(async () => {
 	//   const { coords } = await getCoords();
 	//   alert(`Your location is ${coords.latitude}, ${coords.longitude}`);
 	// });
-	let products: IProduct[] = [
-		{
-			id: 'isitici',
-			name: 'Product 1',
-			qty: 1
-		},
-		{
-			id: 'isitici2',
-			name: 'Product 2',
-			qty: 1
-		},
-		{
-			id: 'isitici3',
-			name: 'Product 3',
-			qty: 1
-		},
-		{
-			id: 'isitici4',
-			name: 'Product 4',
-			qty: 1
-		}
-	];
 </script>
+
+<svelte:head>
+	<title>Yardım İste</title>
+	<meta name="description" content="Yardım isteyin" />
+</svelte:head>
 
 <PageTitle
 	upperText="Yardım"
@@ -139,7 +120,12 @@
 
 <!-- ====== Form Section Start -->
 <div id="form" class="flex flex-col container items-center">
-	<TextInput type="number" label="Kaç kişisiniz?" bind:value={userData.people} validity={notHighlightErrors || peopleValid}>
+	<TextInput
+		type="number"
+		label="Kaç kişisiniz?"
+		bind:value={userData.people}
+		validity={notHighlightErrors || peopleValid}
+	>
 		<span slot="icon">
 			<svg
 				class="fill-gray-500"
@@ -197,6 +183,30 @@
 			</svg>
 		</span>
 	</TextInput>
+	<Dropdown
+		label="Şehir"
+		placeholder="Şehir seçiniz"
+		bind:value={userData.city}
+		options={cities}
+		validity={notHighlightErrors || cityValid}
+	>
+		<span slot="icon">
+			<svg
+				class="fill-gray-500"
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox="0 0 24 24"
+				width="24"
+				height="24"
+			>
+				<g opacity="0.8">
+					<path fill="none" d="M0 0h24v24H0z" />
+					<path
+						d="M21 20h2v2H1v-2h2V3a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v17zm-2 0V4H5v16h14zM8 11h3v2H8v-2zm0-4h3v2H8V7zm0 8h3v2H8v-2zm5 0h3v2h-3v-2zm0-4h3v2h-3v-2zm0-4h3v2h-3V7z"
+					/>
+				</g>
+			</svg>
+		</span>
+	</Dropdown>
 	<TextInput
 		label="Adres"
 		placeholder="Adresinizi giriniz"
@@ -259,7 +269,7 @@
 			</div>
 		</div>
 	</div>
-	<TextInput label="Şehir" bind:value={userData.city} validity={notHighlightErrors || cityValid}>
+	<!-- <TextInput label="Şehir" bind:value={userData.city} validity={notHighlightErrors || cityValid}>
 		<span slot="icon">
 			<svg
 				class="fill-gray-500"
@@ -276,7 +286,7 @@
 				</g>
 			</svg>
 		</span>
-	</TextInput>
+	</TextInput> -->
 </div>
 <!-- ====== Form Section End -->
 
@@ -287,7 +297,9 @@
 	disabled={loading}
 	class="fixed z-50 bottom-0 w-full bg-green-700 h-24 font-bold text-white text-3xl disabled:bg-gray-500"
 >
-	{#if loading}
+	{#if loading && submitStatus}
+		Gönderildi!
+	{:else if loading}
 		Gönderiliyor...
 	{:else}
 		Yardım İste

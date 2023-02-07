@@ -8,8 +8,8 @@
 
 <div class="w-full px-4 sm:w-1/2 lg:w-1/3 xl:w-1/4">
 	<div class="mb-10">
-		<div class="relative mb-5 overflow-hidden rounded">
-			<img src="/assets/images/products/{product.id}" alt="product" class="w-full" />
+		<div class="relative mb-5 overflow-hidden rounded h-[385px] flex items-center">
+			<img src="https://d38m1yteyr1wyz.cloudfront.net/img/{product.id}.webp" alt="product" class="w-full" />
 		</div>
 		<div class="text-center">
 			<h3>

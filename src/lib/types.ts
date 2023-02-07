@@ -1,7 +1,7 @@
 export interface IProduct {
   id: IDType;
   name: string;
-  qty: number;
+  img: string;
 };
 
 export type IDType = string | number;

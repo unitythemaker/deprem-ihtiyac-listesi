@@ -5,17 +5,17 @@
 
 <header class="flex w-full items-center bg-white">
 	<div class="container mx-auto">
-		<div class="relative -mx-4 flex items-center justify-between">
+		<div class="relative -mx-4 flex items-center justify-center">
 			<div class="w-60 max-w-full px-4">
 				<a href="/" class="block w-full py-5 lg:py-3">
 					<img
-						src="/assets/images/logo.svg"
+						src="/assets/images/logo.png"
 						alt="logo"
 						class="w-full"
 					/>
 				</a>
 			</div>
-			<div class="flex w-full items-center justify-between px-4">
+			<!-- <div class="flex w-full items-center justify-between px-4">
 				<div class="w-full">
 					<button
 						on:click={() => (navbarOpen = !navbarOpen)}
@@ -53,7 +53,7 @@
 						</ul>
 					</nav>
 				</div>
-			</div>
+			</div> -->
 		</div>
 	</div>
 </header>
