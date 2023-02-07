@@ -5,7 +5,7 @@
 	export let validity: boolean;
 	export let type: 'number' | 'text' = 'text';
 
-	let randomId = Math.random().toString(36).slice(2);
+	const randomId = Math.random().toString(36).slice(2);
 </script>
 
 <div class="w-full px-4 md:w-1/2 lg:w-1/3">

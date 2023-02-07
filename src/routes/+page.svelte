@@ -9,6 +9,7 @@
 	import { products } from '$lib/products';
 	import Dropdown from '$components/Dropdown.svelte';
 	import { cities } from '$lib/cities';
+	import Checkbox from '$components/Checkbox.svelte';
 
 	let userData: IUserData = {
 		name: '',
@@ -19,6 +20,7 @@
 		people: 1
 	};
 
+	let acceptedKvkk = false;
 	let requestedGeolocation = false;
 	let notHighlightErrors = true;
 	let submitStatus = false;
@@ -30,11 +32,19 @@
 	$: addrValid = userData.addr.length > 8;
 	$: cityValid = userData.city.toString().length === 2;
 	$: peopleValid = userData.people ? userData.people > 0 : false;
-	$: allValid = nameValid && phoneValid && descValid && addrValid && cityValid && peopleValid;
+	$: allValid =
+		nameValid && phoneValid && descValid && addrValid && cityValid && peopleValid && acceptedKvkk;
 
 	async function getHelp() {
 		notHighlightErrors = false;
-		if (!userData.name || !userData.phone || !userData.desc || !userData.addr || !userData.city) {
+		if (
+			!userData.name ||
+			!userData.phone ||
+			!userData.desc ||
+			!userData.addr ||
+			!userData.city ||
+			!acceptedKvkk
+		) {
 			goto('#form');
 			return;
 		}
@@ -120,6 +130,9 @@
 
 <!-- ====== Form Section Start -->
 <div id="form" class="flex flex-col container items-center">
+	<div class="py-5">
+		<Checkbox highlight={!notHighlightErrors && !acceptedKvkk} bind:checked={acceptedKvkk}>KVKK Aydınlatma Metni'ni okudum, kabul ediyorum</Checkbox>
+	</div>
 	<TextInput
 		type="number"
 		label="Kaç kişisiniz?"
