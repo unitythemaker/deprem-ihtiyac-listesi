@@ -7,11 +7,11 @@
 	<div class="container mx-auto">
 		<div class="relative -mx-4 flex items-center justify-center">
 			<div class="w-60 max-w-full px-4">
-				<a href="/" class="block w-full py-5 lg:py-3">
+				<a href="/" class="block w-full py-3">
 					<img
-						src="/assets/images/logo.png"
+						src="/favicon.png"
 						alt="logo"
-						class="w-full"
+						class="w-full h-min"
 					/>
 				</a>
 			</div>
