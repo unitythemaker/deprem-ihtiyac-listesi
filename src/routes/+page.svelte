@@ -6,10 +6,11 @@
 	import { cart } from '$lib/cart';
 	import { getLocation } from '$lib/location';
 	import type { IUserData } from '$lib/types';
-	import { products } from '$lib/products';
+	import { products } from '$lib/constants/products';
 	import Dropdown from '$components/Dropdown.svelte';
-	import { cities } from '$lib/cities';
+	import { cities } from '$lib/constants/cities';
 	import Checkbox from '$components/Checkbox.svelte';
+	import SearchBox from '$components/SearchBox.svelte';
 
 	let userData: IUserData = {
 		name: '',
@@ -25,6 +26,8 @@
 	let notHighlightErrors = true;
 	let submitStatus = false;
 	let loading = false;
+
+	export let searchStr = '';
 
 	$: nameValid = userData.name.length > 2;
 	$: phoneValid = userData.phone.length > 8;
@@ -126,9 +129,9 @@
 	title="Yardım İste"
 	description="İhtiyacınız olan malzemeleri aşağıdan seçin, formu doldurun ve yardım isteyin."
 />
+<SearchBox bind:value={searchStr} />
 <ProductGrid {products} />
 
-<!-- ====== Form Section Start -->
 <div id="form" class="flex flex-col container items-center">
 	<div class="py-5">
 		<Checkbox highlight={!notHighlightErrors && !acceptedKvkk} bind:checked={acceptedKvkk}>KVKK Aydınlatma Metni'ni okudum, kabul ediyorum</Checkbox>
@@ -301,7 +304,6 @@
 		</span>
 	</TextInput> -->
 </div>
-<!-- ====== Form Section End -->
 
 <div class="h-24" />
 

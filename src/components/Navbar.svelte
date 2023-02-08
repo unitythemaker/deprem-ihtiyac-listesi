@@ -1,5 +1,5 @@
 <script lang="ts">
-	let navbarOpen = false;
+	export let isCategoriesOpen = false;
 	let cartOpen = false;
 </script>
 
@@ -15,12 +15,12 @@
 					/>
 				</a>
 			</div>
-			<!-- <div class="flex w-full items-center justify-between px-4">
+			<div class="flex w-full items-center justify-between px-4">
 				<div class="w-full">
 					<button
-						on:click={() => (navbarOpen = !navbarOpen)}
+						on:click={() => (isCategoriesOpen = !isCategoriesOpen)}
 						id="navbarToggler"
-						class="{navbarOpen &&
+						class="{isCategoriesOpen &&
 							'navbarTogglerActive'} ring-primary absolute sm:hidden right-4 top-1/2 block -translate-y-1/2 rounded-lg px-3 py-[6px]"
 					>
 						<span class="bg-body-color relative my-[6px] block h-[2px] w-[30px]" />
@@ -28,7 +28,7 @@
 						<span class="bg-body-color relative my-[6px] block h-[2px] w-[30px]" />
 					</button>
 
-					<nav
+					<!-- <nav
 						id="navbarCollapse"
 						class="{!navbarOpen &&
 							'hidden'} absolute right-4 top-full w-full max-w-[250px] justify-end rounded-lg bg-white py-5 px-6 shadow lg:static lg:flex lg:w-full lg:max-w-full lg:bg-transparent lg:py-0 lg:shadow-none"
@@ -51,9 +51,9 @@
 								</a>
 							</li>
 						</ul>
-					</nav>
+					</nav> -->
 				</div>
-			</div> -->
+			</div>
 		</div>
 	</div>
 </header>

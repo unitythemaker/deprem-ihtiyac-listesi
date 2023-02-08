@@ -1,9 +1,10 @@
-import type { IProduct } from "./types";
+import type { IProduct } from "$lib/types";
 
 export const products: IProduct[] = [
 	{
 		id: 'makarna',
 		name: 'Makarna',
+		category: 'bakliyat',
 		img: ''
 	},
 	{

@@ -4,6 +4,7 @@
 
 	import * as Sentry from '@sentry/svelte';
 	import { BrowserTracing } from '@sentry/tracing';
+	import Categories from '$components/Categories.svelte';
 
 	// Initialize the Sentry SDK here
 	Sentry.init({
@@ -16,8 +17,10 @@
 		tracesSampleRate: 1.0
 	});
 
-  export const prerender = true;
+	export const prerender = true;
+	export let isCategoriesOpen = false;
 </script>
 
-<Navbar />
+<Categories bind:isCategoriesOpen={isCategoriesOpen} />
+<Navbar bind:isCategoriesOpen={isCategoriesOpen} />
 <slot />
