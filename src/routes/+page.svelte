@@ -10,6 +10,11 @@
 	import Dropdown from '$components/Dropdown.svelte';
 	import { cities } from '$lib/cities';
 	import Checkbox from '$components/Checkbox.svelte';
+	import sveltify from 'svelte-preprocess-react/sveltify';
+	import { createPortal } from 'react-dom';
+	import ReactDOM from 'react-dom/client';
+	import { renderToString } from 'react-dom/server';
+	import YouTube from 'react-youtube';
 
 	let userData: IUserData = {
 		name: '',
@@ -114,12 +119,16 @@
 	//   const { coords } = await getCoords();
 	//   alert(`Your location is ${coords.latitude}, ${coords.longitude}`);
 	// });
+
+	const React$YouTube = sveltify(YouTube, createPortal, ReactDOM, renderToString);
 </script>
 
 <svelte:head>
 	<title>Yardım İste</title>
 	<meta name="description" content="Yardım isteyin" />
 </svelte:head>
+
+<React$YouTube videoId="AdNJ3fydeao" />
 
 <PageTitle
 	upperText="Yardım"
@@ -131,7 +140,9 @@
 <!-- ====== Form Section Start -->
 <div id="form" class="flex flex-col container items-center">
 	<div class="py-5">
-		<Checkbox highlight={!notHighlightErrors && !acceptedKvkk} bind:checked={acceptedKvkk}>KVKK Aydınlatma Metni'ni okudum, kabul ediyorum</Checkbox>
+		<Checkbox highlight={!notHighlightErrors && !acceptedKvkk} bind:checked={acceptedKvkk}
+			>KVKK Aydınlatma Metni'ni okudum, kabul ediyorum</Checkbox
+		>
 	</div>
 	<TextInput
 		type="number"
